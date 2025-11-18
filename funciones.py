@@ -34,7 +34,7 @@ def printear_menu():
     "2- Tabla de puntajes\n" \
     "3- Salir")
 
-def verificar_menu(pregunta_menu):
+def verificar_menu(pregunta_menu:str):
 
     while pregunta_menu != "1" and pregunta_menu != "2" and pregunta_menu != "3":
         pregunta_menu = input("Eliga una opcion valida(1,2,3): ")
@@ -66,7 +66,7 @@ def iniciar_juego_de_la_vida():
 
 def iniciar_jugador(tablero:list):
     nombre = input("Ingrese su nombre: ")
-    verificar_nombre(nombre)
+    nombre = verificar_nombre(nombre)
 
     posicion = 0
     puntos = 15000
@@ -82,13 +82,22 @@ def iniciar_jugador(tablero:list):
     
     return jugador
 
-def verificar_nombre (nombre):
+def verificar_nombre (nombre:str):
 
-    while len(nombre) == 0:
+    while len(nombre) == 0 or verificar_espacios(nombre):
         nombre = input("Error. debe ingrese su nombre: ")
+    return nombre
+
+def verificar_espacios(nombre:str):
+
+    espacio = False
+    for i in nombre:
+        if i == " ":
+            espacio = True
+    return espacio
 
 
-def procesar_turno(jugador, tablero, preguntas:list):
+def procesar_turno(jugador:dict, tablero:list, preguntas:list):
 
     bandera = True
     mover_jugador(jugador)
@@ -106,7 +115,7 @@ def procesar_turno(jugador, tablero, preguntas:list):
 
     return bandera
 
-def mover_jugador(jugador):
+def mover_jugador(jugador:dict):
 
     tirada = tirar_dados()
     jugador["posicion"] += tirada
@@ -118,7 +127,7 @@ def tirar_dados():
     print(f"Usted ha tirado el dado, saco el numero {tirada}")
     return tirada
 
-def obtener_casillero(tablero, jugador):
+def obtener_casillero(tablero:list, jugador:dict):
     casillero = tablero[jugador["posicion"]]
     print(f"Caiste en la casilla ----> {tablero[jugador["posicion"]]["casillero"]}")
 
@@ -215,17 +224,51 @@ def verificar_minuscula(letra:str):
             minuscula = True
     return minuscula
 
-#GUARDAR PUNTAJE 
 
-def guardar_puntaje (nombre:str, puntos:int, archivo:str = "Tabla de puntajes.csv"):
+def guardar_puntaje (nombre:str, puntos:int, archivo:str = "Tabla_de_puntajes.csv"):
 
     with open(archivo, "a") as archivo:
         archivo.write(f"{nombre} ----> {puntos}\n")
         archivo.close()
     
-def mostrar_puntaje(archivo:str = "Tabla de puntajes.csv"):
+def mostrar_puntaje(archivo:str = "Tabla_de_puntajes.csv"):
 
+    nombres = []
+    puntos = []
     with open(archivo, "r") as archivo:
-        for i in archivo:
-            print(i)
+        for linea in archivo:
+            
+            partes = linea.split("---->")
+            nombre = partes[0]
+            puntaje = int(partes[1])
+            nombres.append(nombre)
+            puntos.append(puntaje)
+
+    if len(puntos) == 0:
+        print("No hay puntajes aun")
+    else: 
+        ordenar_puntajes_burbuja(nombres,puntos)
+
+        print("---Tabla ordenada---\n")
+        for i in range(len(nombres)):
+            print(f"{nombres[i]} ----> {puntos[i]}")
+
+def ordenar_puntajes_burbuja(nombres, puntos):
+
+    for i in range(len(puntos)-1):
+        for j in range(i + 1, len(puntos)):
+
+            if puntos[i] < puntos[j]:
+
+                aux = puntos[j]
+                puntos[j] = puntos[i]
+                puntos[i] = aux
+
+                aux_nom = nombres[j]
+                nombres[j] = nombres[i]
+                nombres[i] = aux_nom
     
+
+def despedida ():
+
+    print("Programa finalizado, Muchas gracias por jugar")
